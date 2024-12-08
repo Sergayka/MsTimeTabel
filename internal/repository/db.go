@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
@@ -88,4 +89,25 @@ func (db *DB) CreateUser(user *model.User) error {
 	}
 
 	return nil
+}
+
+// Получить расписание для группы
+func (db *DB) GetGroupSchedule(groupName string) (map[string]interface{}, error) {
+	// Получаем коллекцию для группы
+	collection := db.Client.Database("Schedule").Collection(groupName)
+
+	// Создаем структуру для хранения расписания
+	var schedule map[string]interface{}
+
+	// Выполняем запрос на получение расписания для указанной группы
+	err := collection.FindOne(context.TODO(), bson.D{{}}).Decode(&schedule)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("group %s not found", groupName)
+		}
+		return nil, fmt.Errorf("error retrieving group schedule: %v", err)
+	}
+
+	// Возвращаем расписание
+	return schedule, nil
 }
