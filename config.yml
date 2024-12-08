@@ -1,0 +1,15 @@
+apiVersion: 0.20241003
+# Server config
+server:
+  address: http://localhost:3000
+  host: msfs-backend
+  port: :3000
+# Mongo config
+mongo:
+  address: mongodb://localhost:27017
+  host: msfs-mongo
+  port: :27017
+  username: mongoadmin
+  password: qwerty
+files:
+  path: "files/"

@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../VRmsauth/.idea/VRmsauth.iml" filepath="$PROJECT_DIR$/../VRmsauth/.idea/VRmsauth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../VRmsfs/.idea/VRmsfs.iml" filepath="$PROJECT_DIR$/../VRmsfs/.idea/VRmsfs.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mstimetabel.iml" filepath="$PROJECT_DIR$/.idea/mstimetabel.iml" />
     </modules>
   </component>
