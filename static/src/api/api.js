@@ -34,7 +34,6 @@ export const login = async (username, password) => {
 export const getGroupSchedule = async (groupName, weekType) => {
     try {
         const response = await api.get(`/groups/${groupName}/schedule`);
-        console.log(response.data[weekType]);
         return response.data[weekType]; // Возвращаем соответствующую неделю (четную или нечетную)
     } catch (error) {
         console.error('Ошибка при получении расписания:', error);
