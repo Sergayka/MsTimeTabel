@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { getWeekType } from '../utils/weekUtils'; // Импортируем функцию для вычисления недели
+import { getGroupSchedule } from '../api/api'; // Импортируем функцию для получения расписания
 
 const MainPage = () => {
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState(null); // Данные пользователя из localStorage
+    const [schedule, setSchedule] = useState(null); // Расписание для отображения
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Загружаем сохраненные данные из localStorage
+        // Загружаем сохраненные данные пользователя из localStorage
         const savedData = JSON.parse(localStorage.getItem('userData'));
         setUserData(savedData);
     }, []);
+
+    useEffect(() => {
+        if (userData && userData.group) {
+            // Определяем текущую неделю (четная или нечетная)
+            const weekType = getWeekType(new Date()); // Получаем тип недели (четная или нечетная)
+            fetchSchedule(userData.group, weekType); // Получаем расписание для текущей группы и недели
+        }
+    }, [userData]);
+
+    const fetchSchedule = async (groupName, weekType) => {
+        try {
+            const scheduleData = await getGroupSchedule(groupName, weekType); // Получаем расписание
+            setSchedule(scheduleData); // Устанавливаем расписание в state
+            // console.log(scheduleData);
+        } catch (error) {
+            console.error('Ошибка при получении расписания:', error);
+        }
+    };
 
     const handleNavigate = (path) => {
         navigate(path);
@@ -28,41 +49,23 @@ const MainPage = () => {
                 <div style={styles.schedule}>
                     {/* Сетка с 6 равномерными блоками */}
                     <div style={styles.grid}>
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Понедельник</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
-
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Вторник</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
-
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Среда</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
-
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Четверг</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
-
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Пятница</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
-
-                        <div style={styles.dayBlock}>
-                            <div style={styles.dayTitle}>Суббота</div>
-                            <div style={styles.daySchedule}>Занятие 1</div>
-                            <div style={styles.daySchedule}>Занятие 2</div>
-                        </div>
+                        {['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'].map((day, index) => (
+                            <div key={index} style={styles.dayBlock}>
+                                <div style={styles.dayTitle}>{day}</div>
+                                <div style={styles.daySchedule}>
+                                    {/* Проверяем, есть ли данные для дня */}
+                                    {schedule && schedule[day] ? (
+                                        Object.keys(schedule[day]).map((timeSlot, idx) => (
+                                            <div key={idx}>
+                                                <strong>{timeSlot}:</strong> {schedule[day][timeSlot] || 'Нет занятий'}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div>Нет данных для {day}</div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </Container>
@@ -82,7 +85,7 @@ const MainPage = () => {
 
 const styles = {
     container: {
-        position: 'relative', // Устанавливаем контейнер как относительный для позиционирования кнопок
+        position: 'relative',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -112,7 +115,7 @@ const styles = {
     },
     grid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(6, 1fr)', // 6 равных колонок
+        gridTemplateColumns: 'repeat(6, 1fr)',
         gap: '20px',
         width: '100%',
         marginBottom: '20px',
@@ -125,7 +128,7 @@ const styles = {
         padding: '20px',
         borderRadius: '10px',
         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-        height: '300px', // Высота блока с расписанием
+        height: '300px',
     },
     dayTitle: {
         fontWeight: 'bold',
@@ -141,11 +144,11 @@ const styles = {
         textAlign: 'center',
     },
     buttonContainer: {
-        position: 'absolute', // Фиксируем кнопки
+        position: 'absolute',
         top: '20px',
         right: '20px',
         display: 'flex',
-        flexDirection: 'row', // Параллельное расположение кнопок
+        flexDirection: 'row',
         gap: '10px',
     },
     button: {
