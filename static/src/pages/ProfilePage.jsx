@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, MenuItem, Select, InputLabel, FormControl, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { getGroups } from '../api/api'; // Импортируем API
+import { getGroups } from '../api/api';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -12,11 +12,9 @@ const ProfilePage = () => {
     const [subgroup, setSubgroup] = useState('');
 
     useEffect(() => {
-        // Загружаем группы с помощью API и сортируем их
         const fetchGroups = async () => {
             try {
-                const data = await getGroups();  // Вызов функции из api.js
-                // Сортируем группы по алфавиту
+                const data = await getGroups();
                 const sortedGroups = data.sort((a, b) => a.localeCompare(b));
                 setGroups(sortedGroups);
             } catch (error) {
@@ -31,8 +29,11 @@ const ProfilePage = () => {
         navigate('/');
     };
 
+    const handleLoginRedirect = () => {
+        navigate('/login');
+    };
+
     const handleSubmit = () => {
-        // Здесь будет логика для сохранения данных, пока пустая
         alert('Данные сохранены!');
     };
 
@@ -64,14 +65,6 @@ const ProfilePage = () => {
                         value={group}
                         onChange={(e) => setGroup(e.target.value)}
                         label="Группа"
-                        MenuProps={{
-                            PaperProps: {
-                                style: {
-                                    maxHeight: 250, // Ограничиваем высоту выпадающего списка
-                                    overflow: 'auto', // Добавляем прокрутку
-                                },
-                            },
-                        }}
                     >
                         {groups.map((groupName, index) => (
                             <MenuItem key={index} value={groupName}>
@@ -98,7 +91,12 @@ const ProfilePage = () => {
                     <Button variant="contained" color="primary" onClick={handleSubmit} style={styles.button}>
                         Сохранить данные
                     </Button>
-                    <Button variant="contained" color="secondary" style={styles.button}>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleLoginRedirect} // Переадресация на /login
+                        style={styles.button}
+                    >
                         Войти через web - bmstu
                     </Button>
                 </div>

@@ -16,4 +16,18 @@ export const getGroups = async () => {
     }
 };
 
+// Функция для авторизации пользователя
+export const login = async (username, password) => {
+    try {
+        const response = await api.post('/login', {
+            username,
+            password,
+        });
+        return response.data; // Возвращаем данные, если авторизация успешна
+    } catch (error) {
+        console.error('Ошибка при авторизации:', error);
+        throw new Error('Неверный логин или пароль');
+    }
+};
+
 // Другие API функции (например, для сохранения данных профиля) можно добавить здесь
