@@ -30,4 +30,15 @@ export const login = async (username, password) => {
     }
 };
 
+// Функция для получения расписания по группе
+export const getGroupSchedule = async (groupName, weekType) => {
+    try {
+        const response = await api.get(`/groups/${groupName}/schedule`);
+        console.log(response.data[weekType]);
+        return response.data[weekType]; // Возвращаем соответствующую неделю (четную или нечетную)
+    } catch (error) {
+        console.error('Ошибка при получении расписания:', error);
+        throw new Error('Не удалось получить расписание');
+    }
+};
 // Другие API функции (например, для сохранения данных профиля) можно добавить здесь
