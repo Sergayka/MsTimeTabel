@@ -52,13 +52,12 @@ npm run dev
 - **Адаптивность**: Приложение полностью адаптивно и поддерживает все современные устройства.
 
 ## 📸 **Интерфейс**
-![mstimetable.jpg](mstimetable.jpg)
+![mstimetable.jpg](https://github.com/Sergayka/MsTimeTabel/blob/master/mstimetable.jpg?raw=true)
 
-!![mainMenu.png](mainMenu.png)
+![mainMenu.png](https://github.com/Sergayka/MsTimeTabel/blob/master/mainMenu.png?raw=true)
 
-!![profile.png](profile.png)
+![profile.png](https://github.com/Sergayka/MsTimeTabel/blob/master/profile.png?raw=true)
 
-![Пример интерфейса](ссылка_на_изображение)
 
 ## 📚 **Планируемые фичи**
 - Добавить возможность редактирования расписания.
