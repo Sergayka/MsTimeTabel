@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"mstimetable/internal/model"
 	"mstimetable/internal/repository"
 
@@ -38,8 +37,6 @@ func GetGroupSchedule(db *repository.DB, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Group name is required", http.StatusBadRequest)
 		return
 	}
-	log.Println("first step")
-	log.Println(groupName)
 	// Получаем расписание для группы
 	schedule, err := db.GetGroupSchedule(groupName)
 	if err != nil {
@@ -54,5 +51,4 @@ func GetGroupSchedule(db *repository.DB, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Error encoding schedule data", http.StatusInternalServerError)
 		return
 	}
-	log.Println("second step")
 }
