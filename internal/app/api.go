@@ -28,6 +28,7 @@ func (a *Api) setRouters() {
 	api := a.Router.PathPrefix("/api/").Subrouter()
 	api.HandleFunc("/groups", a.handleRequest(handler.GetGroups)).Methods("GET")
 	api.HandleFunc("/login", a.handleRequest(handler.LogIn)).Methods("POST")
+	api.HandleFunc("/groups/{groupName}/schedule", a.handleRequest(handler.GetGroupSchedule)).Methods("GET")
 }
 
 func (a *Api) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
