@@ -6,5 +6,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="VRmsfs" />
+    <orderEntry type="module" module-name="VRmsauth" />
   </component>
 </module>

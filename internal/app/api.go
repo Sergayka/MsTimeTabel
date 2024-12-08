@@ -26,7 +26,7 @@ func (a *Api) Init(config *model.Service) {
 
 func (a *Api) setRouters() {
 	api := a.Router.PathPrefix("/api/").Subrouter()
-	api.HandleFunc("/collections", a.handleRequest(handler.GetCollections)).Methods("GET")
+	api.HandleFunc("/groups", a.handleRequest(handler.GetGroups)).Methods("GET")
 }
 
 func (a *Api) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
