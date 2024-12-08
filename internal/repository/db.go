@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"mstimetable/internal/model"
 )
@@ -49,7 +50,15 @@ func (db *DB) ListCollectionNames() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return collectionNames, nil
+	// Фильтруем коллекцию "Users"
+	var filteredCollectionNames []string
+	for _, name := range collectionNames {
+		if name != "Users" {
+			filteredCollectionNames = append(filteredCollectionNames, name)
+		}
+	}
+
+	return filteredCollectionNames, nil
 }
 
 func (db *DB) Disconnect() {
@@ -59,4 +68,24 @@ func (db *DB) Disconnect() {
 	} else {
 		fmt.Println("Connection to MongoDB closed.")
 	}
+}
+
+func (db *DB) CreateUser(user *model.User) error {
+	// Хешируем пароль
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("error hashing password: %v", err)
+	}
+
+	// Обновляем пароль с захешированным значением
+	user.Password = string(hashedPassword)
+
+	// Вставляем пользователя в коллекцию Users
+	collection := db.Client.Database("Schedule").Collection("Users")
+	_, err = collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		return fmt.Errorf("error inserting user into database: %v", err)
+	}
+
+	return nil
 }
