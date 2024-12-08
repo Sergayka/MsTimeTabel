@@ -23,18 +23,35 @@ const ProfilePage = () => {
         };
 
         fetchGroups();
+
+        // Загружаем сохраненные данные из localStorage (если есть)
+        const savedData = JSON.parse(localStorage.getItem('userData'));
+        if (savedData) {
+            setDirection(savedData.direction);
+            setGroup(savedData.group);
+            setSubgroup(savedData.subgroup);
+        }
     }, []);
 
     const handleBack = () => {
         navigate('/');
     };
 
-    const handleLoginRedirect = () => {
-        navigate('/login');
+    const handleSave = () => {
+        // Сохраняем данные в localStorage
+        const userData = {
+            direction,
+            group,
+            subgroup,
+            timestamp: new Date().getTime(), // Сохраняем метку времени
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+        alert('Данные сохранены!');
     };
 
-    const handleSubmit = () => {
-        alert('Данные сохранены!');
+    const handleLoginRedirect = () => {
+        navigate('/login');
     };
 
     return (
@@ -88,13 +105,13 @@ const ProfilePage = () => {
                 </FormControl>
 
                 <div style={styles.buttonContainer}>
-                    <Button variant="contained" color="primary" onClick={handleSubmit} style={styles.button}>
+                    <Button variant="contained" color="primary" onClick={handleSave} style={styles.button}>
                         Сохранить данные
                     </Button>
                     <Button
                         variant="contained"
                         color="secondary"
-                        onClick={handleLoginRedirect} // Переадресация на /login
+                        onClick={handleLoginRedirect}
                         style={styles.button}
                     >
                         Войти через web - bmstu
