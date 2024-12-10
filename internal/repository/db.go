@@ -111,3 +111,14 @@ func (db *DB) GetGroupSchedule(groupName string) (map[string]interface{}, error)
 	// Возвращаем расписание
 	return schedule, nil
 }
+
+// ListTeachersName возвращает список коллекций из базы данных
+func (db *DB) ListTeachersName() ([]string, error) {
+	// Получаем коллекции из базы данных "Schedule"
+	collectionNames, err := db.Client.Database("Teachers").ListCollectionNames(context.TODO(), options.ListCollections())
+	if err != nil {
+		return nil, err
+	}
+
+	return collectionNames, nil
+}
