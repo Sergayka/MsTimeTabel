@@ -112,20 +112,35 @@
 //
 // export default LoginPage;
 import React from 'react';
-import { Box, Container, Heading, VStack, Spinner, Text, IconButton } from '@chakra-ui/react';
+import { Box, Container, Heading, VStack, Spinner, Text, IconButton, useColorMode } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const navigate = useNavigate(); // Хук для перехода на предыдущую страницу
+    const { colorMode } = useColorMode(); // Хук для определения текущей темы
 
     const handleBack = () => {
         navigate(-1); // Возвращаемся на предыдущую страницу
     };
 
     return (
-        <Box bgGradient="linear(to-r, purple.300, blue.500)" minH="100vh" py={10}>
-            <Container maxW="container.sm" bg="white" borderRadius="md" boxShadow="lg" p={6}>
+        <Box
+            bgGradient={
+                colorMode === 'light'
+                    ? 'linear(to-r, purple.300, blue.500)'
+                    : 'linear(to-r, #2D3748, #1A202C)'
+            }
+            minH="100vh"
+            py={10}
+        >
+            <Container
+                maxW="container.sm"
+                bg={colorMode === 'light' ? 'white' : '#2D3748'}
+                borderRadius="md"
+                boxShadow="lg"
+                p={6}
+            >
                 <VStack spacing={6} align="center" justify="center" h="full">
                     {/* Кнопка "Назад" */}
                     <IconButton
@@ -141,10 +156,10 @@ const LoginPage = () => {
                     <Spinner size="xl" color="purple.500" />
 
                     {/* Сообщение о разработке */}
-                    <Heading as="h2" size="lg" color="purple.600">
+                    <Heading as="h2" size="lg" color={colorMode === 'light' ? 'purple.600' : 'white'}>
                         Вход через web-bmstu
                     </Heading>
-                    <Text color="purple.500">
+                    <Text color={colorMode === 'light' ? 'purple.500' : 'white'}>
                         Эта функция находится в разработке. Пожалуйста, ожидайте...
                     </Text>
                 </VStack>
@@ -154,3 +169,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

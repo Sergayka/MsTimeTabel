@@ -28,7 +28,7 @@ const MainPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredTeachers, setFilteredTeachers] = useState([]);
     const navigate = useNavigate();
-    const { colorMode, toggleColorMode } = useColorMode(); // Используем для переключения темы
+    const { colorMode, toggleColorMode } = useColorMode(); // Для смены темы
 
     useEffect(() => {
         const savedData = JSON.parse(localStorage.getItem('userData'));
@@ -52,6 +52,13 @@ const MainPage = () => {
         };
 
         fetchTeachers();
+
+        // Проверка и установка темы из localStorage
+        const savedTheme = localStorage.getItem('chakra-ui-color-mode');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
     }, []);
 
     useEffect(() => {
@@ -60,6 +67,11 @@ const MainPage = () => {
             fetchSchedule(userData.group, weekType);
         }
     }, [userData]);
+
+    useEffect(() => {
+        // Сохраняем текущую тему в localStorage
+        localStorage.setItem('chakra-ui-color-mode', colorMode);
+    }, [colorMode]);
 
     const fetchSchedule = async (groupName, weekType) => {
         try {

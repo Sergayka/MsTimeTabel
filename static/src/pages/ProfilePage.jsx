@@ -11,6 +11,7 @@ import {
     HStack,
     IconButton,
     useToast,
+    useColorMode,
 } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ import { getGroups } from '../api/api';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
+    const { colorMode } = useColorMode(); // Используем colorMode для динамического изменения темы
     const [groups, setGroups] = useState([]);
     const [direction, setDirection] = useState('');
     const [group, setGroup] = useState('');
@@ -73,8 +75,12 @@ const ProfilePage = () => {
     };
 
     return (
-        <Box bgGradient="linear(to-r, purple.300, blue.500)" minH="100vh" py={10}>
-            <Container maxW="container.sm" bg="white" borderRadius="md" boxShadow="lg" p={6}>
+        <Box
+            bgGradient={colorMode === 'light' ? 'linear(to-r, purple.300, blue.500)' : 'linear(to-r, #2D3748, #1A202C)'}
+            minH="100vh"
+            py={10}
+        >
+            <Container maxW="container.sm" bg={colorMode === 'light' ? 'white' : '#2D3748'} borderRadius="md" boxShadow="lg" p={6}>
                 {/* Header */}
                 <HStack mb={6}>
                     <IconButton
@@ -83,7 +89,7 @@ const ProfilePage = () => {
                         aria-label="Назад"
                         colorScheme="purple"
                     />
-                    <Heading size="lg" color="purple.700">
+                    <Heading size="lg" color={colorMode === 'light' ? 'purple.700' : 'white'}>
                         Профиль
                     </Heading>
                 </HStack>
@@ -92,11 +98,14 @@ const ProfilePage = () => {
                 <VStack spacing={4}>
                     {/* Группа */}
                     <FormControl id="group">
-                        <FormLabel>Группа</FormLabel>
+                        <FormLabel color={colorMode === 'light' ? 'purple.600' : 'white'}>Группа</FormLabel>
                         <Select
                             placeholder="Выберите группу"
                             value={group}
                             onChange={(e) => setGroup(e.target.value)}
+                            bg={colorMode === 'light' ? 'white' : '#4A5568'}
+                            color={colorMode === 'light' ? 'black' : 'white'}
+                            borderColor={colorMode === 'light' ? 'gray.300' : '#2D3748'}
                         >
                             {groups.map((groupName, index) => (
                                 <option key={index} value={groupName}>
@@ -108,11 +117,14 @@ const ProfilePage = () => {
 
                     {/* Подгруппа */}
                     <FormControl id="subgroup">
-                        <FormLabel>Подгруппа</FormLabel>
+                        <FormLabel color={colorMode === 'light' ? 'purple.600' : 'white'}>Подгруппа</FormLabel>
                         <Select
                             placeholder="Выберите подгруппу"
                             value={subgroup}
                             onChange={(e) => setSubgroup(e.target.value)}
+                            bg={colorMode === 'light' ? 'white' : '#4A5568'}
+                            color={colorMode === 'light' ? 'black' : 'white'}
+                            borderColor={colorMode === 'light' ? 'gray.300' : '#2D3748'}
                         >
                             <option value="I">I</option>
                             <option value="II">II</option>
