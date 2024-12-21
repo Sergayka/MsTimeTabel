@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"mstimetable/internal/model"
 	"mstimetable/internal/repository"
 	"net/http"
@@ -39,12 +38,10 @@ func GetTeacherSchedule(db *repository.DB, w http.ResponseWriter, r *http.Reques
 	}
 
 	schedule, err := db.GetTeacherSchedule(teacherFio)
-	log.Println(schedule)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error retrieving schedule for group: %v", err), http.StatusInternalServerError)
 		return
 	}
-	log.Println(schedule)
 
 	w.Header().Set("Content-Type", model.ContentTypeJSON)
 	err = json.NewEncoder(w).Encode(schedule)

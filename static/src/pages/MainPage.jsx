@@ -1,14 +1,29 @@
-import React, {useEffect, useState} from 'react';
-import {Autocomplete, Button, Container, TextField} from '@mui/material';
-import {useNavigate} from 'react-router-dom';
-import {getWeekType} from '../utils/weekUtils';
-import {getGroupSchedule, getTeachers, getTeacherSchedule} from '../api/api';
+import React, { useEffect, useState } from 'react';
+import {
+    Box,
+    Button,
+    Container,
+    Heading,
+    HStack,
+    VStack,
+    Grid,
+    Text,
+    Input,
+    InputGroup,
+    InputRightElement,
+    List,
+    ListItem,
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { getWeekType } from '../utils/weekUtils';
+import { getGroupSchedule, getTeachers } from '../api/api';
 
 const MainPage = () => {
     const [userData, setUserData] = useState(null);
     const [schedule, setSchedule] = useState(null);
-    const [teachers, setTeachers] = useState([]); // Данные преподавателей
+    const [teachers, setTeachers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [filteredTeachers, setFilteredTeachers] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,15 +34,14 @@ const MainPage = () => {
             try {
                 const teachersData = await getTeachers();
 
-                const processedTeachers = teachersData.map(teacher => {
-                    const nameWithoutSchedule = teacher.replace('_schedule', ''); // Убираем "_schedule"
-
+                const processedTeachers = teachersData.map((teacher) => {
+                    const nameWithoutSchedule = teacher.replace('_schedule', '');
                     const nameWithoutRank = nameWithoutSchedule.split('.').slice(-3);
                     return `${nameWithoutRank[0].split(' ')[0]} ${nameWithoutRank[0].split(' ')[1]}.${nameWithoutRank[1]}.`;
                 });
-                console.log(processedTeachers)
 
                 setTeachers(processedTeachers);
+                setFilteredTeachers(processedTeachers);
             } catch (error) {
                 console.error('Ошибка при загрузке преподавателей:', error);
             }
@@ -56,151 +70,124 @@ const MainPage = () => {
         navigate(path);
     };
 
-    const handleSearchChange = (event, value) => {
-        setSearchQuery(value); // Обновляем значение при изменении в поле поиска
+    const handleSearchChange = (event) => {
+        const query = event.target.value.toLowerCase();
+        setSearchQuery(query);
+        setFilteredTeachers(teachers.filter((teacher) => teacher.toLowerCase().includes(query)));
     };
 
-    const handleTeacherSelect = async (event, value) => {
-        if (value) {
-            const encodedTeacherName = encodeURIComponent(value);
-            // Редирект на страницу преподавателя
-            navigate(`/teacher/${encodedTeacherName}`); // Передаем имя преподавателя в URL
-            console.log(value);
-            const scheduleData = await getTeacherSchedule(encodedTeacherName);
+    const handleTeacherSelect = (teacher) => {
+        if (teacher) {
+            const encodedTeacherName = encodeURIComponent(teacher);
+            navigate(`/teacher/${encodedTeacherName}`);
         }
     };
 
     return (
-        <div style={styles.container}>
-            <Container style={styles.content}>
-                {/* Заголовок */}
-                <div style={styles.header}>
-                    <h1>Расписание {userData ? `для ${userData.group} - ${userData.subgroup} подгруппа` : ''}</h1>
-                </div>
+        <Box bgGradient="linear(to-r, purple.300, blue.500)" minH="100vh" position="relative">
+            {/* Верхний правый угол */}
+            <HStack
+                position="absolute"
+                top="20px"
+                right="20px"
+                spacing={4}
+                alignItems="center"
+                zIndex="10"
+            >
+                {/* Поле для поиска */}
+                <InputGroup w="300px" position="relative">
+                    <Input
+                        placeholder="Поиск преподавателя"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        bg="white"
+                    />
+                    <InputRightElement>
+                        <Button colorScheme="blue" size="sm">
+                            🔍
+                        </Button>
+                    </InputRightElement>
 
-                {/* Расписание */}
-                <div style={styles.schedule}>
-                    <div style={styles.grid}>
-                        {['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'].map((day, index) => (
-                            <div key={index} style={styles.dayBlock}>
-                                <div style={styles.dayTitle}>{day}</div>
-                                <div style={styles.daySchedule}>
-                                    {schedule && schedule[day] ? (
-                                        Object.keys(schedule[day]).map((timeSlot, idx) => (
-                                            <div key={idx}>
-                                                <strong>{timeSlot}:</strong> {schedule[day][timeSlot] || 'Нет занятий'}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div>Нет данных для {day}</div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Container>
-
-            {/* Кнопки и поиск в правом верхнем углу */}
-            <div style={styles.buttonContainer}>
-                {/* Поиск преподавателя */}
-                <Autocomplete
-                    freeSolo
-                    options={teachers.filter(teacher =>
-                        teacher.toLowerCase().includes(searchQuery.toLowerCase()) // Фильтрация по введенному запросу
+                    {/* Выпадающий список преподавателей */}
+                    {searchQuery && (
+                        <List
+                            spacing={2}
+                            mt={10}
+                            bg="white"
+                            position="absolute"
+                            zIndex="10"
+                            maxH="200px"
+                            overflowY="auto"
+                            boxShadow="md"
+                            w="100%"
+                            borderRadius="md"
+                        >
+                            {filteredTeachers.map((teacher, index) => (
+                                <ListItem
+                                    key={index}
+                                    cursor="pointer"
+                                    _hover={{ bg: 'gray.100' }}
+                                    onClick={() => handleTeacherSelect(teacher)}
+                                >
+                                    {teacher}
+                                </ListItem>
+                            ))}
+                        </List>
                     )}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Поиск преподавателя"
-                            variant="outlined"
-                            onChange={(e) => setSearchQuery(e.target.value)} // Обновляем поисковый запрос
-                            style={styles.searchField}
-                        />
-                    )}
-                    onChange={handleTeacherSelect} // Обработка выбора преподавателя
-                    getOptionLabel={(option) => option}  // Указываем как отображать элементы списка
-                    renderOption={(props, option, state) => (
-                        <li {...props} key={`${option}-${state.index}`}>{option}</li> // Уникальный key через индекс
-                    )}
-                />
+                </InputGroup>
 
                 {/* Кнопка профиля */}
-                <Button variant="contained" color="primary" onClick={() => handleNavigate('/profile')} style={styles.button}>
+                <Button colorScheme="purple" onClick={() => handleNavigate('/profile')}>
                     Профиль
                 </Button>
-            </div>
-        </div>
-    );
-};
+            </HStack>
 
-const styles = {
-    container: {
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #e0c3fc, #8ec5fc)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '20px',
-    },
-    content: {
-        width: '100%',
-        maxWidth: '1200px',
-        background: '#fff',
-        borderRadius: '15px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-        overflow: 'hidden',
-    },
-    header: {
-        background: '#6200ea',
-        padding: '20px',
-        color: '#fff',
-    },
-    title: {
-        margin: 0,
-        fontFamily: "'Poppins', sans-serif",
-        fontWeight: 600,
-    },
-    schedule: {
-        padding: '20px',
-    },
-    grid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '20px',
-    },
-    dayBlock: {
-        background: '#f8f9fa',
-        borderRadius: '10px',
-        padding: '15px',
-        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
-        transition: 'transform 0.2s',
-    },
-    dayBlockHover: {
-        transform: 'scale(1.05)',
-    },
-    dayTitle: {
-        fontFamily: "'Poppins', sans-serif",
-        marginBottom: '10px',
-        color: '#333',
-    },
-    daySchedule: {
-        fontSize: '0.9rem',
-        lineHeight: '1.5',
-    },
-    buttonContainer: {
-        position: 'absolute',
-        top: '20px',
-        right: '20px',
-        display: 'flex',
-        gap: '10px',
-    },
-    searchField: {
-        width: '300px',
-    },
-    button: {
-        padding: '10px 20px',
-    },
+            {/* Основной контент */}
+            <Container maxW="2000" pt={20}>
+                {/* Заголовок */}
+                <Heading as="h1" size="lg" mb={6} textAlign="center" color="purple.700">
+                    Расписание {userData ? `для ${userData.group} - ${userData.subgroup} подгруппа` : ''}
+                </Heading>
+
+                {/* Дни недели по горизонтали */}
+                <HStack
+                    spacing={6}
+                    overflowX="auto"
+                    py={4}
+                    px={2}
+                    align="start" // Выравнивание по верхнему краю
+                >
+                    {['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'].map((day, index) => (
+                        <Box
+                            key={index}
+                            bg="gray.100"
+                            borderRadius="md"
+                            p={6}
+                            minW="200px"
+                            minH="300px" // Фиксированная высота для всех дней
+                            boxShadow="md"
+                            _hover={{ bg: 'purple.50', transform: 'scale(1.05)', transition: 'all 0.2s' }}
+                        >
+                            <Heading as="h3" size="sm" mb={4} color="purple.600" textAlign="center">
+                                {day}
+                            </Heading>
+                            <VStack align="start" spacing={3}>
+                                {schedule && schedule[day] ? (
+                                    Object.keys(schedule[day]).map((timeSlot, idx) => (
+                                        <Box key={idx}>
+                                            <Text fontWeight="bold">{timeSlot}:</Text> {schedule[day][timeSlot] || 'Нет занятий'}
+                                        </Box>
+                                    ))
+                                ) : (
+                                    <Text>Нет данных для {day}</Text>
+                                )}
+                            </VStack>
+                        </Box>
+                    ))}
+                </HStack>
+            </Container>
+        </Box>
+    );
 };
 
 export default MainPage;
