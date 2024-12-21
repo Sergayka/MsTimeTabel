@@ -19,8 +19,6 @@ type DB struct {
 }
 
 func (db *DB) DBConnect(config *model.Service) {
-	// Set client options
-	log.Println(config.Mongo.Address)
 	clientOption := options.Client().ApplyURI(config.Mongo.Address)
 	if config.Mongo.Username != "" && config.Mongo.Password != "" {
 		clientOption.SetAuth(options.Credential{
@@ -131,7 +129,7 @@ func (db *DB) GetTeacherSchedule(teacherFio string) (map[string]interface{}, err
 	if err != nil {
 		return nil, err
 	}
-	log.Println(teacherFio)
+
 	var teacherCollectionName string
 	for _, name := range teachersCollections {
 		// Преобразуем имя коллекции в формат ФИО
@@ -145,7 +143,7 @@ func (db *DB) GetTeacherSchedule(teacherFio string) (map[string]interface{}, err
 			teacherCollectionName = name
 		}
 	}
-	log.Println(teacherCollectionName)
+
 	if teacherCollectionName == "" {
 		return nil, fmt.Errorf("teacher not found")
 	}
@@ -162,7 +160,7 @@ func (db *DB) GetTeacherSchedule(teacherFio string) (map[string]interface{}, err
 		}
 		return nil, fmt.Errorf("error retrieving group schedule: %v", err)
 	}
-	log.Println(schedule)
+
 	// Возвращаем расписание
 	return schedule, nil
 }
@@ -180,6 +178,5 @@ func processTeacherName(name string) string {
 		strings.Split(nameParts[len(nameParts)-3], " ")[1],
 		nameParts[len(nameParts)-2])
 
-	//log.Println(teacherFio)
 	return teacherFio
 }

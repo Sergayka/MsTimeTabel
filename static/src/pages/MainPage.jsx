@@ -103,7 +103,7 @@ const MainPage = () => {
                         bg="white"
                     />
                     <InputRightElement>
-                        <Button colorScheme="blue" size="sm">
+                        <Button colorScheme="blue" size="sm" right="4px">
                             🔍
                         </Button>
                     </InputRightElement>
