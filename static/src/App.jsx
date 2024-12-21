@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MainPage from './pages/MainPage';
 import ProfilePage from './pages/ProfilePage';
-import SchedulePage from './pages/SchedulePage';
+import SearchPage from './pages/SearchPage.jsx';
 import AddSchedulePage from './pages/AddSchedulePage';
 import LoginPage from './pages/LoginPage'; // Новый компонент для логина
+import TeacherPage from './pages/TeacherPage';
 
 function App() {
     return (
@@ -11,9 +12,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<MainPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/search" element={<SchedulePage />} />
-                <Route path="/add" element={<AddSchedulePage />} />
-                <Route path="/login" element={<LoginPage />} /> {/* Новый маршрут */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/teacher/:teacherName" element={<TeacherPage />} />
             </Routes>
         </Router>
     );

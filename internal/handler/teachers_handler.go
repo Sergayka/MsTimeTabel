@@ -2,6 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"log"
 	"mstimetable/internal/model"
 	"mstimetable/internal/repository"
 	"net/http"
@@ -20,6 +23,33 @@ func GetTeachers(db *repository.DB, w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(collections)
 	if err != nil {
 		http.Error(w, "Error sending data", http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetTeacherSchedule -> обрабатывает запрос для получения расписания преподавателя
+func GetTeacherSchedule(db *repository.DB, w http.ResponseWriter, r *http.Request) {
+	// Получаем имя группы из параметров запроса
+	vars := mux.Vars(r) // Получаем все параметры пути
+	teacherFio := vars["teacherFio"]
+
+	if teacherFio == "" {
+		http.Error(w, "teacher name is required", http.StatusBadRequest)
+		return
+	}
+
+	schedule, err := db.GetTeacherSchedule(teacherFio)
+	log.Println(schedule)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error retrieving schedule for group: %v", err), http.StatusInternalServerError)
+		return
+	}
+	log.Println(schedule)
+
+	w.Header().Set("Content-Type", model.ContentTypeJSON)
+	err = json.NewEncoder(w).Encode(schedule)
+	if err != nil {
+		http.Error(w, "Error encoding schedule data", http.StatusInternalServerError)
 		return
 	}
 }

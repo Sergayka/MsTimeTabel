@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Autocomplete, Button, Container, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {getWeekType} from '../utils/weekUtils';
-import {getGroupSchedule, getTeachers} from '../api/api';
+import {getGroupSchedule, getTeachers, getTeacherSchedule} from '../api/api';
 
 const MainPage = () => {
     const [userData, setUserData] = useState(null);
@@ -25,6 +25,7 @@ const MainPage = () => {
                     const nameWithoutRank = nameWithoutSchedule.split('.').slice(-3);
                     return `${nameWithoutRank[0].split(' ')[0]} ${nameWithoutRank[0].split(' ')[1]}.${nameWithoutRank[1]}.`;
                 });
+                console.log(processedTeachers)
 
                 setTeachers(processedTeachers);
             } catch (error) {
@@ -59,10 +60,13 @@ const MainPage = () => {
         setSearchQuery(value); // Обновляем значение при изменении в поле поиска
     };
 
-    const handleTeacherSelect = (event, value) => {
+    const handleTeacherSelect = async (event, value) => {
         if (value) {
+            const encodedTeacherName = encodeURIComponent(value);
             // Редирект на страницу преподавателя
-            navigate(`/teacher/${value}`); // Передаем имя преподавателя в URL
+            navigate(`/teacher/${encodedTeacherName}`); // Передаем имя преподавателя в URL
+            console.log(value);
+            const scheduleData = await getTeacherSchedule(encodedTeacherName);
         }
     };
 
@@ -71,7 +75,7 @@ const MainPage = () => {
             <Container style={styles.content}>
                 {/* Заголовок */}
                 <div style={styles.header}>
-                    <h1>Расписание {userData ? `для ${userData.direction} - ${userData.group} - ${userData.subgroup}` : ''}</h1>
+                    <h1>Расписание {userData ? `для ${userData.group} - ${userData.subgroup} подгруппа` : ''}</h1>
                 </div>
 
                 {/* Расписание */}
@@ -132,80 +136,70 @@ const MainPage = () => {
 
 const styles = {
     container: {
-        position: 'relative',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #e0c3fc, #8ec5fc)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f1f1f1, #e3e4e8)',
-        textAlign: 'center',
         padding: '20px',
     },
     content: {
-        display: 'flex',
-        flexDirection: 'column',
         width: '100%',
         maxWidth: '1200px',
-        padding: '20px',
-        backgroundColor: 'white',
-        borderRadius: '10px',
-        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+        background: '#fff',
+        borderRadius: '15px',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
     },
     header: {
-        marginBottom: '20px',
+        background: '#6200ea',
+        padding: '20px',
+        color: '#fff',
+    },
+    title: {
+        margin: 0,
+        fontFamily: "'Poppins', sans-serif",
+        fontWeight: 600,
     },
     schedule: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
+        padding: '20px',
     },
     grid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(6, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '20px',
-        width: '100%',
-        marginBottom: '20px',
     },
     dayBlock: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        backgroundColor: '#f1f1f1',
-        padding: '20px',
+        background: '#f8f9fa',
         borderRadius: '10px',
-        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-        height: '300px',
+        padding: '15px',
+        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+        transition: 'transform 0.2s',
+    },
+    dayBlockHover: {
+        transform: 'scale(1.05)',
     },
     dayTitle: {
-        fontWeight: 'bold',
-        fontSize: '1.2rem',
-        textAlign: 'center',
+        fontFamily: "'Poppins', sans-serif",
+        marginBottom: '10px',
+        color: '#333',
     },
     daySchedule: {
-        backgroundColor: '#fff',
-        marginTop: '10px',
-        padding: '10px',
-        borderRadius: '8px',
-        minHeight: '50px',
-        textAlign: 'center',
+        fontSize: '0.9rem',
+        lineHeight: '1.5',
     },
     buttonContainer: {
         position: 'absolute',
         top: '20px',
         right: '20px',
         display: 'flex',
-        flexDirection: 'row',
         gap: '10px',
-        alignItems: 'center', // Центрируем элементы по вертикали
     },
     searchField: {
-        width: '250px', // Ширина поля поиска
-        marginRight: '20px', // Отступ между полем поиска и кнопкой профиля
+        width: '300px',
     },
     button: {
         padding: '10px 20px',
-        fontSize: '1rem',
     },
 };
 

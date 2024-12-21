@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -9,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"mstimetable/internal/model"
+	"strings"
 )
 
 type DB struct {
@@ -91,7 +93,7 @@ func (db *DB) CreateUser(user *model.User) error {
 	return nil
 }
 
-// Получить расписание для группы
+// GetGroupSchedule -> Получить расписание для группы
 func (db *DB) GetGroupSchedule(groupName string) (map[string]interface{}, error) {
 	// Получаем коллекцию для группы
 	collection := db.Client.Database("Schedule").Collection(groupName)
@@ -102,17 +104,16 @@ func (db *DB) GetGroupSchedule(groupName string) (map[string]interface{}, error)
 	// Выполняем запрос на получение расписания для указанной группы
 	err := collection.FindOne(context.TODO(), bson.D{{}}).Decode(&schedule)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, fmt.Errorf("group %s not found", groupName)
 		}
 		return nil, fmt.Errorf("error retrieving group schedule: %v", err)
 	}
-
 	// Возвращаем расписание
 	return schedule, nil
 }
 
-// ListTeachersName возвращает список коллекций из базы данных
+// ListTeachersName -> возвращает список коллекций из базы данных
 func (db *DB) ListTeachersName() ([]string, error) {
 	// Получаем коллекции из базы данных "Schedule"
 	collectionNames, err := db.Client.Database("Teachers").ListCollectionNames(context.TODO(), options.ListCollections())
@@ -121,4 +122,64 @@ func (db *DB) ListTeachersName() ([]string, error) {
 	}
 
 	return collectionNames, nil
+}
+
+// GetTeacherSchedule -> Получить расписание для преподавателя
+func (db *DB) GetTeacherSchedule(teacherFio string) (map[string]interface{}, error) {
+	// Получаем коллекцию для группы
+	teachersCollections, err := db.ListTeachersName()
+	if err != nil {
+		return nil, err
+	}
+	log.Println(teacherFio)
+	var teacherCollectionName string
+	for _, name := range teachersCollections {
+		// Преобразуем имя коллекции в формат ФИО
+		processedCollectionName := processTeacherName(name)
+
+		// Сравниваем с ФИО преподавателя
+		if processedCollectionName == teacherFio {
+			if teacherCollectionName != "" {
+				return nil, fmt.Errorf("multiple collections found for teacher")
+			}
+			teacherCollectionName = name
+		}
+	}
+	log.Println(teacherCollectionName)
+	if teacherCollectionName == "" {
+		return nil, fmt.Errorf("teacher not found")
+	}
+
+	collection := db.Client.Database("Teachers").Collection(teacherCollectionName)
+	// Создаем структуру для хранения расписания
+	var schedule map[string]interface{}
+
+	// Выполняем запрос на получение расписания для указанной группы
+	err = collection.FindOne(context.TODO(), bson.D{{}}).Decode(&schedule)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, fmt.Errorf("group %s not found", teacherFio)
+		}
+		return nil, fmt.Errorf("error retrieving group schedule: %v", err)
+	}
+	log.Println(schedule)
+	// Возвращаем расписание
+	return schedule, nil
+}
+
+// Преобразует имя коллекции в формат ФИО
+func processTeacherName(name string) string {
+	// Убираем "_schedule" из имени коллекции
+	nameWithoutSchedule := strings.Replace(name, "_schedule", "", 1)
+
+	// Разбиваем имя по точкам и берем последние три части
+	nameParts := strings.Split(nameWithoutSchedule, ".")
+
+	teacherFio := fmt.Sprintf("%s %s.%s.",
+		strings.Split(nameParts[len(nameParts)-3], " ")[0],
+		strings.Split(nameParts[len(nameParts)-3], " ")[1],
+		nameParts[len(nameParts)-2])
+
+	//log.Println(teacherFio)
+	return teacherFio
 }

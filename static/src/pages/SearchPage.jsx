@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-const SchedulePage = () => {
+const SearchPage = () => {
     const [schedule, setSchedule] = useState([]);
 
     useEffect(() => {
@@ -44,4 +44,4 @@ const SchedulePage = () => {
     );
 };
 
-export default SchedulePage;
+export default SearchPage;

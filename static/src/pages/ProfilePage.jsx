@@ -65,18 +65,6 @@ const ProfilePage = () => {
 
             <form style={styles.form}>
                 <FormControl fullWidth style={styles.formControl}>
-                    <InputLabel>Направление</InputLabel>
-                    <Select
-                        value={direction}
-                        onChange={(e) => setDirection(e.target.value)}
-                        label="Направление"
-                    >
-                        <MenuItem value="МК">МК</MenuItem>
-                        <MenuItem value="ИУК">ИУК</MenuItem>
-                    </Select>
-                </FormControl>
-
-                <FormControl fullWidth style={styles.formControl}>
                     <InputLabel>Группа</InputLabel>
                     <Select
                         value={group}

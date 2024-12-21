@@ -30,6 +30,7 @@ func (a *Api) setRouters() {
 	api.HandleFunc("/login", a.handleRequest(handler.LogIn)).Methods("POST")
 	api.HandleFunc("/groups/{groupName}/schedule", a.handleRequest(handler.GetGroupSchedule)).Methods("GET")
 	api.HandleFunc("/teachers", a.handleRequest(handler.GetTeachers)).Methods("GET")
+	api.HandleFunc("/teacher/{teacherFio}/schedule", a.handleRequest(handler.GetTeacherSchedule)).Methods("GET")
 }
 
 func (a *Api) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
