@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { getWeekType } from '../utils/weekUtils';
 import { getGroupSchedule, getTeachers } from '../api/api';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
+import { WiSnowflakeCold } from 'react-icons/wi'; // Импортируем иконку снежинки
 
 const MainPage = () => {
     const [userData, setUserData] = useState(null);
@@ -27,8 +28,9 @@ const MainPage = () => {
     const [teachers, setTeachers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredTeachers, setFilteredTeachers] = useState([]);
+    const [isSnowing, setIsSnowing] = useState(false); // Состояние для снега
     const navigate = useNavigate();
-    const { colorMode, toggleColorMode } = useColorMode(); // Для смены темы
+    const { colorMode, toggleColorMode } = useColorMode();
 
     useEffect(() => {
         const savedData = JSON.parse(localStorage.getItem('userData'));
@@ -53,7 +55,6 @@ const MainPage = () => {
 
         fetchTeachers();
 
-        // Проверка и установка темы из localStorage
         const savedTheme = localStorage.getItem('chakra-ui-color-mode');
         if (savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -69,9 +70,37 @@ const MainPage = () => {
     }, [userData]);
 
     useEffect(() => {
-        // Сохраняем текущую тему в localStorage
         localStorage.setItem('chakra-ui-color-mode', colorMode);
     }, [colorMode]);
+
+    useEffect(() => {
+        if (isSnowing) {
+            let snowflakes = [];
+            const snowflakeCount = 50;
+
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.textContent = '❄️';
+                snowflake.style.position = 'fixed';
+                snowflake.style.left = `${Math.random() * 100}%`;
+                snowflake.style.top = '-10px';
+                snowflake.style.color = 'white'; // Используем белый цвет для снега
+                snowflake.style.fontSize = `${Math.random() * 20 + 10}px`;
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                snowflake.style.zIndex = '9999'; // Устанавливаем z-index ниже основного контента
+                snowflake.style.pointerEvents = 'none'; // Отключаем взаимодействие с снежинками
+                snowflake.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`;
+                document.body.appendChild(snowflake);
+                snowflakes.push(snowflake);
+            }
+
+            return () => {
+                snowflakes.forEach(snowflake => {
+                    document.body.removeChild(snowflake);
+                });
+            };
+        }
+    }, [isSnowing]);
 
     const fetchSchedule = async (groupName, weekType) => {
         try {
@@ -99,9 +128,49 @@ const MainPage = () => {
         }
     };
 
+    const toggleSnow = () => {
+        setIsSnowing(!isSnowing);
+    };
+
+    // Добавляем стили для снежинок
+    useEffect(() => {
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(105vh);
+                }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        return () => {
+            document.head.removeChild(styleSheet);
+        };
+    }, []);
+
     return (
-        <Box bgGradient={colorMode === 'light' ? 'linear(to-r, purple.300, blue.500)' : 'linear(to-r, #2D3748, #1A202C)'} minH="100vh" position="relative">
-            {/* Верхний правый угол с кнопкой смены темы */}
+        <Box
+            bgGradient={colorMode === 'light' ? 'linear(to-r, purple.300, blue.500)' : 'linear(to-r, #2D3748, #1A202C)'}
+            minH="100vh"
+            position="relative"
+        >
+            <HStack
+                position="absolute"
+                top="20px"
+                left="20px"
+                spacing={4}
+                alignItems="center"
+                zIndex="10"
+            >
+                <IconButton
+                    icon={<WiSnowflakeCold />}
+                    onClick={toggleSnow}
+                    aria-label="Снег"
+                    colorScheme="purple"
+                />
+            </HStack>
+
+            {/* Остальной интерфейс */}
             <HStack
                 position="absolute"
                 top="20px"
@@ -110,22 +179,19 @@ const MainPage = () => {
                 alignItems="center"
                 zIndex="10"
             >
-                {/* Кнопка Луна / Солнце для смены темы */}
                 <IconButton
                     icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
                     onClick={toggleColorMode}
                     aria-label="Сменить тему"
                     colorScheme="purple"
                 />
-
-                {/* Поле для поиска */}
                 <InputGroup w="300px" position="relative">
                     <Input
                         placeholder="Поиск преподавателя"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        bg={colorMode === 'light' ? 'white' : '#2D3748'} // Цвет фона для светлой и темной темы
-                        color={colorMode === 'light' ? 'black' : 'white'} // Цвет текста
+                        bg={colorMode === 'light' ? 'white' : '#2D3748'}
+                        color={colorMode === 'light' ? 'black' : 'white'}
                     />
                     <InputRightElement>
                         <Button colorScheme="blue" size="sm" right="4px">
@@ -133,7 +199,6 @@ const MainPage = () => {
                         </Button>
                     </InputRightElement>
 
-                    {/* Выпадающий список преподавателей */}
                     {searchQuery && (
                         <List
                             spacing={2}
@@ -162,31 +227,27 @@ const MainPage = () => {
                     )}
                 </InputGroup>
 
-                {/* Кнопка профиля */}
                 <Button colorScheme="purple" onClick={() => handleNavigate('/profile')}>
                     Профиль
                 </Button>
             </HStack>
 
-            {/* Основной контент */}
             <Container maxW="2000" pt={20}>
-                {/* Заголовок */}
                 <Heading as="h1" size="lg" mb={6} textAlign="center" color={colorMode === 'light' ? 'purple.700' : 'white'}>
                     Расписание {userData ? `для ${userData.group} - ${userData.subgroup} подгруппа` : ''}
                 </Heading>
 
-                {/* Дни недели по горизонтали */}
                 <HStack
                     spacing={6}
                     overflowX="auto"
                     py={4}
                     px={2}
-                    align="start" // Выравнивание по верхнему краю
+                    align="start"
                 >
                     {['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'].map((day, index) => (
                         <Box
                             key={index}
-                            bg={colorMode === 'light' ? 'gray.100' : '#2D3748'} // Цвет фона карточки
+                            bg={colorMode === 'light' ? 'gray.100' : '#2D3748'}
                             borderRadius="md"
                             p={6}
                             minW="200px"
