@@ -163,7 +163,7 @@ const MainPage = () => {
                 zIndex="10"
             >
                 <IconButton
-                    icon={<WiSnowflakeCold />}
+                    icon={<>❄️</>}
                     onClick={toggleSnow}
                     aria-label="Снег"
                     colorScheme="purple"
