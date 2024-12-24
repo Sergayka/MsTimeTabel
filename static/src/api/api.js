@@ -40,4 +40,27 @@ export const getGroupSchedule = async (groupName, weekType) => {
         throw new Error('Не удалось получить расписание');
     }
 };
+
+export const getTeachers = async () => {
+    try {
+        const response = await api.get('/teachers');
+        return response.data; // Возвращаем данные
+    } catch (error) {
+        console.error('Ошибка при загрузке преподавателей:', error);
+        throw error;
+    }
+};
+
+export const getTeacherSchedule = async (teacherName) => {
+    try {
+        const response = await api.get(`/teacher/${teacherName}/schedule`);
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка при загрузке данных преподавателя:', error);
+        throw new Error('Не удалось получить расписание');
+    }
+};
+
 // Другие API функции (например, для сохранения данных профиля) можно добавить здесь
+
+
